@@ -1,0 +1,31 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.34729.46
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMSLib.Reader", "src\DMSLib.Reader\DMSLib.Reader.csproj", "{B6310824-8868-4705-890B-A2D7CB5E1517}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebUxDatExtractor.Core", "src\WebUxDatExtractor.Core\WebUxDatExtractor.Core.csproj", "{991808CE-5DDA-45BE-B8D9-57747D087633}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebUxDatExtractor", "src\WebUxDatExtractor\WebUxDatExtractor.csproj", "{45F59E4B-24DB-4487-84A3-D85E109B0701}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B6310824-8868-4705-890B-A2D7CB5E1517}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6310824-8868-4705-890B-A2D7CB5E1517}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6310824-8868-4705-890B-A2D7CB5E1517}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6310824-8868-4705-890B-A2D7CB5E1517}.Release|Any CPU.Build.0 = Release|Any CPU
+		{991808CE-5DDA-45BE-B8D9-57747D087633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{991808CE-5DDA-45BE-B8D9-57747D087633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{991808CE-5DDA-45BE-B8D9-57747D087633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{991808CE-5DDA-45BE-B8D9-57747D087633}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45F59E4B-24DB-4487-84A3-D85E109B0701}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45F59E4B-24DB-4487-84A3-D85E109B0701}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45F59E4B-24DB-4487-84A3-D85E109B0701}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45F59E4B-24DB-4487-84A3-D85E109B0701}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

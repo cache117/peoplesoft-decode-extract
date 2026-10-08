@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+  <name>peoplesoft-xml-extractor</name>
+  <comment>Extract text-based source artifacts from PeopleSoft Application Designer project XML.</comment>
+  <projects/>
+  <buildSpec>
+    <buildCommand><name>org.eclipse.jdt.core.javabuilder</name><arguments/></buildCommand>
+  </buildSpec>
+  <natures><nature>org.eclipse.jdt.core.javanature</nature></natures>
+</projectDescription>

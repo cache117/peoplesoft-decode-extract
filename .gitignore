@@ -1,0 +1,25 @@
+# IDE metadata
+.idea/
+.vs/
+*.user
+*.suo
+
+# Java build output
+**/build/
+**/target/
+*.class
+*.jar
+!apps/xml-extractor/lib/*.jar
+
+# .NET build output
+**/bin/
+**/obj/
+
+# Repository build artifacts
+/artifacts/
+/dist/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+Desktop.ini

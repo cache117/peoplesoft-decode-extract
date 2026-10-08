@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build both extractors
+        shell: powershell
+        run: .\build-all.ps1
+
+      - name: Upload XML extractor
+        uses: actions/upload-artifact@v4
+        with:
+          name: peoplesoft-xml-extractor
+          path: artifacts/xml-extractor
+
+      - name: Upload WebUX DAT extractor
+        uses: actions/upload-artifact@v4
+        with:
+          name: peoplesoft-webux-dat-extractor
+          path: artifacts/webux-dat-extractor
