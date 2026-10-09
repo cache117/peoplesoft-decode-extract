@@ -10,29 +10,36 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '25'
 
       - name: Set up MSBuild
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Supply .NET Framework 4.0 reference assemblies
+        shell: powershell
+        run: |
+          nuget install Microsoft.NETFramework.ReferenceAssemblies.net40 -Version 1.0.3 -OutputDirectory .ci\packages -NonInteractive
+          $frameworkPath = Resolve-Path '.ci\packages\Microsoft.NETFramework.ReferenceAssemblies.net40.1.0.3\build\.NETFramework\v4.0'
+          "FrameworkPathOverride=$frameworkPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Build both extractors
         shell: powershell
         run: .\build-all.ps1
 
       - name: Upload XML extractor
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: peoplesoft-xml-extractor
           path: artifacts/xml-extractor
 
       - name: Upload WebUX DAT extractor
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: peoplesoft-webux-dat-extractor
           path: artifacts/webux-dat-extractor
