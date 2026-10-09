@@ -36,6 +36,12 @@ Ready-to-use packages are available from the [latest release](https://github.com
 
 Both downloads include their own usage instructions. Development builds are also available from the continuous-integration workflow.
 
+## Project history
+
+This project did not begin from scratch. Its PeopleCode extraction lineage starts with the original [Decode PeopleCode project on SourceForge](https://sourceforge.net/projects/decodepcode/). That work was later adapted and extended in [cache117/decode-pcode](https://github.com/cache117/decode-pcode), the immediate predecessor to this repository.
+
+PeopleSoft Decode & Extract continues that idea with a deliberately narrower focus: turn text-bearing Application Designer project XML and Data Mover DAT exports into ordinary source files. The original SourceForge project and the earlier GitHub adaptation deserve credit for establishing the foundation and direction that led to this tool.
+
 ## License
 
 The original code in this repository is available under the [MIT License](LICENSE). Bundled third-party components retain their own licenses; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
