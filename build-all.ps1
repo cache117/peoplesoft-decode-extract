@@ -34,6 +34,7 @@ Copy-Item -LiteralPath (Join-Path $root 'apps\xml-extractor\run-gui.bat') -Desti
 Copy-Item -LiteralPath (Join-Path $root 'apps\xml-extractor\README.md') -Destination $xmlArtifact
 Copy-Item -LiteralPath (Join-Path $root 'apps\xml-extractor\licenses') -Destination $xmlArtifact -Recurse
 Copy-Item -Path (Join-Path $root 'apps\webux-dat-extractor\src\WebUxDatExtractor\bin\Release\*') -Destination $datArtifact -Recurse
+Copy-Item -LiteralPath (Join-Path $root 'apps\webux-dat-extractor\run.cmd') -Destination $datArtifact
 Copy-Item -LiteralPath (Join-Path $root 'apps\webux-dat-extractor\README.md') -Destination $datArtifact
 
 Write-Host "Build artifacts are in $artifacts"
