@@ -27,9 +27,14 @@ The XML extractor requires JDK 25 to build and deliberately targets Java 17 byte
 
 Detailed usage and build instructions are in each application's README.
 
-## Releases
+## Downloads
 
-The intended release formats are self-contained Windows downloads that do not require users to install development tools. Until those release workflows are finalized, build outputs are available from the continuous-integration workflow.
+Ready-to-use packages are available from the [latest release](https://github.com/cache117/peoplesoft-decode-extract/releases/latest):
+
+- The XML extractor runs on Windows, macOS, or Linux with Java 17 or later. Windows users can double-click `run-gui.bat`.
+- The WebUX DAT extractor runs on Windows with .NET Framework 4.x. Double-click `run.cmd` to launch it.
+
+Both downloads include their own usage instructions. Development builds are also available from the continuous-integration workflow.
 
 ## License
 
