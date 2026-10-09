@@ -19,8 +19,20 @@ Double-click `run.cmd`. The app uses standard Windows file and folder dialogs an
 Command-line use is also supported:
 
 ```text
-src\WebUxDatExtractor\bin\Release\WebUxDatExtractor.exe --input export.dat --output export-extracted
+WebUxDatExtractor.exe --input export.dat --output export-extracted
 ```
+
+When running from a source checkout instead of a downloaded release, the executable is under `src\WebUxDatExtractor\bin\Release` after building.
+
+## Install on the Windows Start Menu
+
+1. Select **Extract All** on the downloaded ZIP. Do not run the application from inside the ZIP.
+2. Move the extracted folder to a permanent location, such as `%LOCALAPPDATA%\Programs\PeopleSoft Decode & Extract\DAT Extractor`.
+3. Right-click `run.cmd` and select **Show more options > Send to > Desktop (create shortcut)**.
+4. Press **Windows+R**, enter `shell:programs`, and press Enter.
+5. Create a **PeopleSoft Decode & Extract** folder there and move the new shortcut into it.
+
+The DAT extractor will then appear under **Start > All apps > PeopleSoft Decode & Extract**. You can right-click it there and select **Pin to Start**. Do not move or rename the extracted application folder afterward unless you also recreate the shortcut.
 
 ## Build
 

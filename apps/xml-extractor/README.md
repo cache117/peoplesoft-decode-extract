@@ -40,6 +40,16 @@ Command line:
 java -jar peoplesoft-xml-extractor.jar --input project.xml --output output-folder
 ```
 
+## Install on the Windows Start Menu
+
+1. Select **Extract All** on the downloaded ZIP. Do not run the application from inside the ZIP.
+2. Move the extracted folder to a permanent location, such as `%LOCALAPPDATA%\Programs\PeopleSoft Decode & Extract\XML Extractor`.
+3. Right-click `run-gui.bat` and select **Show more options > Send to > Desktop (create shortcut)**.
+4. Press **Windows+R**, enter `shell:programs`, and press Enter.
+5. Create a **PeopleSoft Decode & Extract** folder there and move the new shortcut into it.
+
+The XML extractor will then appear under **Start > All apps > PeopleSoft Decode & Extract**. You can right-click it there and select **Pin to Start**. Do not move or rename the extracted application folder afterward unless you also recreate the shortcut.
+
 ## Build
 
 Run `build.bat` or `build.ps1`. A current JDK is required; JDK 25 LTS is recommended. The source deliberately remains compatible with Java 17 so the unbundled JAR works on a wider range of existing machines.

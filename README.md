@@ -36,6 +36,18 @@ Ready-to-use packages are available from the [latest release](https://github.com
 
 Both downloads include their own usage instructions. Development builds are also available from the continuous-integration workflow.
 
+## Install on Windows
+
+The downloads are portable applications, so they do not use a traditional installer:
+
+1. Download the appropriate ZIP from the latest release and select **Extract All**. Do not run the application from inside the ZIP.
+2. Move the extracted folder to a permanent location, such as `%LOCALAPPDATA%\Programs\PeopleSoft Decode & Extract\XML Extractor` or `%LOCALAPPDATA%\Programs\PeopleSoft Decode & Extract\DAT Extractor`.
+3. Create a desktop shortcut to `run-gui.bat` for the XML extractor or `run.cmd` for the DAT extractor.
+4. Press **Windows+R**, enter `shell:programs`, and press Enter.
+5. Create a **PeopleSoft Decode & Extract** folder there and move the shortcut into it.
+
+The application will then appear under **Start > All apps > PeopleSoft Decode & Extract**. Right-click the Start Menu entry and select **Pin to Start** if desired. Install the shortcut before moving or renaming the extracted application folder, because the shortcut points to that location.
+
 ## Project history
 
 This project did not begin from scratch. Its PeopleCode extraction lineage starts with the original [Decode PeopleCode project on SourceForge](https://sourceforge.net/projects/decodepcode/). That work was later adapted and extended in [cache117/decode-pcode](https://github.com/cache117/decode-pcode), the immediate predecessor to this repository.
