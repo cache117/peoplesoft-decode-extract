@@ -16,11 +16,22 @@ It has no database, Git, SVN, or PeopleCode bytecode-decoding dependencies.
 
 Duplicate stylesheet payloads represented by both CRM and SSM instances are written once. Binary image content is intentionally skipped.
 
+Application Engine PeopleCode and SQL use the same compact hierarchy:
+
+```text
+Application Engine PeopleCode/PROGRAM/SECTION/STEP.pcode
+SQL_AE/PROGRAM/SECTION/STEP.sql
+```
+
+Routine defaults such as market `GBL`, platform `default`, effective date `1900-01-01`, and event `OnExecute` are omitted. Meaningful non-default qualifiers are appended to the filename, for example `Step01.USA.DB2.2026-01-01.sql`.
+
+Every SQL definition variant is preserved. The generic version keeps the ordinary filename, while market-, database-, or effective-date-specific versions receive descriptive suffixes such as `.USA`, `.ORACLE`, or `.2026-01-01`.
+
 Web assets use a flat layout such as `HTML/DEFINITION.html`, `HTML/DEFINITION.js`, and `StyleSheet/DEFINITION.css`. Non-English or alternate content variants receive a filename suffix to prevent data loss.
 
 PeopleSoft HTML definitions are emitted only as HTML or JavaScript. CSS embedded in an HTML definition remains part of the `.html` file; only stylesheet definitions are emitted as `.css`.
 
-Every run also creates `extraction-manifest.json`, including extracted files and XML instance classes that did not contain recognized source text.
+Every run also creates `extraction-manifest.json`, including extracted files, XML instance counts, exact duplicates skipped, and path collisions preserved. Exact duplicate payloads are logged and written once. If different content unexpectedly maps to the same path, the additional content is preserved as `.2`, `.3`, and so on and a warning is logged.
 
 On Windows, the GUI uses the native Explorer file and folder dialogs. Other platforms fall back to the Java chooser.
 

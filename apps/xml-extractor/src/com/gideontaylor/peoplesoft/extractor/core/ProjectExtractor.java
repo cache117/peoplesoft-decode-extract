@@ -10,11 +10,9 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import javax.xml.XMLConstants;
@@ -28,20 +26,23 @@ import org.xml.sax.InputSource;
 
 public final class ProjectExtractor {
     private static final Pattern TRAILING_SPACES = Pattern.compile("\\s+$");
-    private final Set<String> identities = new LinkedHashSet<>();
+    private final Map<Path, String> writtenContentByPath = new LinkedHashMap<>();
     private final List<Path> writtenFiles = new ArrayList<>();
     private final Map<String, Integer> instanceCounts = new LinkedHashMap<>();
     private int peopleCodeCount;
     private int sqlCount;
     private int contentCount;
+    private int exactDuplicateCount;
+    private int pathCollisionCount;
 
     public ExtractionResult extract(Path input, Path output, Consumer<String> log) throws Exception {
         if (!Files.isRegularFile(input)) throw new IOException("Project XML does not exist: " + input);
         Files.createDirectories(output);
-        identities.clear();
+        writtenContentByPath.clear();
         writtenFiles.clear();
         instanceCounts.clear();
         peopleCodeCount = sqlCount = contentCount = 0;
+        exactDuplicateCount = pathCollisionCount = 0;
 
         log.accept("Reading " + input.toAbsolutePath());
         DocumentBuilder builder = newDocumentBuilder();
@@ -74,8 +75,12 @@ public final class ProjectExtractor {
         String peopleCode = leafPayload(root, "peoplecode_text");
         if (peopleCode != null) write(assetForPeopleCode(root, peopleCode), output, log);
 
-        String sql = leafPayload(root, "lpszSqlText");
-        if (sql != null) write(assetForSql(root, sql), output, log);
+        if ("SRM".equals(className)) {
+            for (SqlVariant variant : sqlVariants(root)) write(assetForSql(root, variant), output, log);
+        } else {
+            String sql = leafPayload(root, "lpszSqlText");
+            if (sql != null) write(assetForSql(root, new SqlVariant(sql, "GBL", "", "1900-01-01")), output, log);
+        }
 
         if ("CRM".equals(className)) {
             String content = leafPayload(root, "hContStrData");
@@ -87,21 +92,51 @@ public final class ProjectExtractor {
     }
 
     private void write(TextAsset asset, Path output, Consumer<String> log) throws IOException {
-        if (asset == null || !identities.add(asset.identity())) return;
-        Path target = output.resolve(asset.relativePath()).normalize();
-        if (!target.startsWith(output.toAbsolutePath().normalize()) && output.isAbsolute()) {
+        if (asset == null) return;
+        Path relativePath = asset.relativePath().normalize();
+        String normalizedContent = normalizeLines(asset.content());
+        if (writtenContentByPath.containsKey(relativePath)) {
+            if (writtenContentByPath.get(relativePath).equals(normalizedContent)) {
+                exactDuplicateCount++;
+                log.accept("Skipped exact duplicate " + relativePath);
+                return;
+            }
+            Path originalPath = relativePath;
+            int copy = 2;
+            do {
+                relativePath = numberedPath(originalPath, copy++);
+            } while (writtenContentByPath.containsKey(relativePath));
+            pathCollisionCount++;
+            log.accept("WARNING: Different content mapped to " + originalPath
+                    + "; preserved the additional file as " + relativePath);
+        }
+
+        Path outputRoot = output.toAbsolutePath().normalize();
+        Path target = outputRoot.resolve(relativePath).normalize();
+        if (!target.startsWith(outputRoot)) {
             throw new IOException("Unsafe output path: " + target);
         }
         Files.createDirectories(target.getParent());
-        Files.writeString(target, normalizeLines(asset.content()), StandardCharsets.UTF_8,
+        Files.writeString(target, normalizedContent, StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        writtenFiles.add(output.relativize(target));
+        writtenContentByPath.put(relativePath, normalizedContent);
+        writtenFiles.add(relativePath);
         switch (asset.kind()) {
             case PEOPLECODE -> peopleCodeCount++;
             case SQL -> sqlCount++;
             case CONTENT -> contentCount++;
         }
-        log.accept("Wrote " + target.toAbsolutePath());
+        log.accept("Wrote " + target);
+    }
+
+    private static Path numberedPath(Path path, int number) {
+        String name = path.getFileName().toString();
+        int dot = name.lastIndexOf('.');
+        String numberedName = dot > 0
+                ? name.substring(0, dot) + "." + number + name.substring(dot)
+                : name + "." + number;
+        Path parent = path.getParent();
+        return parent == null ? Path.of(numberedName) : parent.resolve(numberedName);
     }
 
     private static TextAsset assetForPeopleCode(Element root, String content) {
@@ -115,21 +150,35 @@ public final class ProjectExtractor {
         String category = peopleCodeCategory(objectType);
         int last = lastValue(values);
         if (last < 0) return null;
+        if (objectType == 43) return assetForApplicationEnginePeopleCode(values, content, category);
+
         int actualLast = objectType == 46 ? last - 2 : last - 1;
         actualLast = Math.max(0, actualLast);
         Path path = Path.of(category);
         for (int i = 0; i < actualLast; i++) {
-            if (i > 0 && objectType == 43) break;
             if ("GBL".equals(values[i]) && objectType == 48) continue;
             path = path.resolve(safe(values[i]));
         }
         String fileName = String.join(" ", Arrays.copyOfRange(values, actualLast, last + 1))
                 .replace(" OnExecute", "");
         path = path.resolve(safe(fileName) + ".pcode");
-        return new TextAsset("pc:" + path, path, content, TextAsset.Kind.PEOPLECODE);
+        return new TextAsset(path, content, TextAsset.Kind.PEOPLECODE);
     }
 
-    private static TextAsset assetForSql(Element root, String content) {
+    private static TextAsset assetForApplicationEnginePeopleCode(String[] values, String content, String category) {
+        String program = defaultValue(values[0], "unnamed-program").trim();
+        String section = defaultValue(values[1], "MAIN").trim();
+        String market = defaultValue(values[2], "GBL").trim();
+        String platform = defaultValue(values[3], "default").trim();
+        String effectiveDate = defaultValue(values[4], "1900-01-01").trim();
+        String step = defaultValue(values[5], "unnamed-step").trim();
+        String event = defaultValue(values[6], "OnExecute").trim();
+        String suffix = aeQualifierSuffix(market, platform, effectiveDate, event);
+        Path path = Path.of(category, safe(program), safe(section), safe(step) + suffix + ".pcode");
+        return new TextAsset(path, content, TextAsset.Kind.PEOPLECODE);
+    }
+
+    private static TextAsset assetForSql(Element root, SqlVariant variant) {
         String name = defaultValue(text(root, "szSqlId"), "unnamed-sql").trim();
         int type = intValue(root, "szSqlType", 2);
         String folder = switch (type) {
@@ -140,8 +189,91 @@ public final class ProjectExtractor {
             default -> "SQL" + type;
         };
         String extension = type == 6 ? "xsl" : "sql";
-        Path path = Path.of(folder, safe(name), safe(name) + "." + extension);
-        return new TextAsset("sql:" + path, path, content, TextAsset.Kind.SQL);
+        String suffix = sqlQualifierSuffix(variant.market(), variant.dbType(), variant.effectiveDate());
+        Path path;
+        if (type == 1) {
+            AeSqlKey key = parseAeSqlKey(name);
+            if (key != null) {
+                String actionSuffix = "S".equalsIgnoreCase(key.action()) || key.action().isBlank()
+                        ? "" : "." + qualifier(key.action());
+                path = Path.of(folder, safe(key.program()), safe(key.section()),
+                        safe(key.step()) + actionSuffix + suffix + ".sql");
+            } else {
+                String compactName = name.replaceAll("\\s+", ".");
+                path = Path.of(folder, safe(compactName), safe(compactName) + suffix + ".sql");
+            }
+        } else {
+            path = Path.of(folder, safe(name), safe(name) + suffix + "." + extension);
+        }
+        return new TextAsset(path, variant.content(), TextAsset.Kind.SQL);
+    }
+
+    private static AeSqlKey parseAeSqlKey(String name) {
+        if (name.length() != 29) return null;
+        return new AeSqlKey(name.substring(0, 12).trim(), name.substring(12, 20).trim(),
+                name.substring(20, 28).trim(), name.substring(28, 29).trim());
+    }
+
+    private static String aeQualifierSuffix(String market, String platform, String effectiveDate, String event) {
+        List<String> qualifiers = new ArrayList<>();
+        if (!isDefault(market, "GBL")) qualifiers.add(qualifier(market));
+        if (!isDefault(platform, "default")) qualifiers.add(qualifier(platform));
+        if (!isDefault(effectiveDate, "1900-01-01")) qualifiers.add(qualifier(effectiveDate));
+        if (!isDefault(event, "OnExecute")) qualifiers.add(qualifier(event));
+        return qualifiers.isEmpty() ? "" : "." + String.join(".", qualifiers);
+    }
+
+    private static String sqlQualifierSuffix(String market, String dbType, String effectiveDate) {
+        List<String> qualifiers = new ArrayList<>();
+        if (!isDefault(market, "GBL")) qualifiers.add(qualifier(market));
+        String platform = databasePlatform(dbType);
+        if (!platform.isBlank()) qualifiers.add(platform);
+        if (!isDefault(effectiveDate, "1900-01-01")) qualifiers.add(qualifier(effectiveDate));
+        return qualifiers.isEmpty() ? "" : "." + String.join(".", qualifiers);
+    }
+
+    private static boolean isDefault(String value, String defaultValue) {
+        return value == null || value.isBlank() || defaultValue.equalsIgnoreCase(value.trim());
+    }
+
+    private static String qualifier(String value) {
+        return safe(value).toUpperCase(Locale.ROOT);
+    }
+
+    private static String databasePlatform(String dbType) {
+        String value = defaultValue(dbType, "").trim();
+        return switch (value) {
+            case "", "0" -> "";
+            case "1" -> "DB2";
+            case "2" -> "ORACLE";
+            case "3" -> "INFORMIX";
+            case "4" -> "DB2_UNIX";
+            case "6" -> "SYBASE";
+            case "7" -> "MICROSOFT";
+            default -> qualifier(value);
+        };
+    }
+
+    private static List<SqlVariant> sqlVariants(Element root) {
+        List<SqlVariant> variants = new ArrayList<>();
+        NodeList rowsets = root.getElementsByTagName("rowset");
+        for (int i = 0; i < rowsets.getLength(); i++) {
+            Element rowset = (Element) rowsets.item(i);
+            if (!"SrmStmt".equals(rowset.getAttribute("name"))) continue;
+            NodeList children = rowset.getChildNodes();
+            for (int j = 0; j < children.getLength(); j++) {
+                Node child = children.item(j);
+                if (child.getNodeType() != Node.ELEMENT_NODE || !"row".equals(child.getNodeName())) continue;
+                Element row = (Element) child;
+                String content = leafPayload(row, "lpszSqlText");
+                if (content == null) continue;
+                variants.add(new SqlVariant(content,
+                        defaultValue(text(row, "szMarket"), "GBL").trim(),
+                        defaultValue(text(row, "cDbType"), "").trim(),
+                        defaultValue(text(row, "szEffDt"), "1900-01-01").trim()));
+            }
+        }
+        return variants;
     }
 
     private static TextAsset assetForContent(Element root, String content) {
@@ -152,15 +284,14 @@ public final class ProjectExtractor {
         String extension = inferFormat(name, text(root, "szContFmt"), type, content);
         String folder = type == 9 ? "StyleSheet" : "HTML";
         Path path = Path.of(folder, safe(name) + variantSuffix(language, alt) + "." + extension);
-        return new TextAsset("content:" + name + ':' + language + ':' + alt + ':' + extension,
-                path, content, TextAsset.Kind.CONTENT);
+        return new TextAsset(path, content, TextAsset.Kind.CONTENT);
     }
 
     private static TextAsset assetForStyleSheet(Element root, String content) {
         String name = defaultValue(text(root, "szStyleSheetName"), "unnamed-stylesheet").trim();
         String language = defaultValue(text(root, "szLanguageCd"), "ENG").trim();
         Path path = Path.of("StyleSheet", safe(name) + variantSuffix(language, 1) + ".css");
-        return new TextAsset("content:" + name + ':' + language + ":1:css", path, content, TextAsset.Kind.CONTENT);
+        return new TextAsset(path, content, TextAsset.Kind.CONTENT);
     }
 
     private static String variantSuffix(String language, int alternate) {
@@ -174,7 +305,9 @@ public final class ProjectExtractor {
         StringBuilder json = new StringBuilder();
         json.append("{\n  \"source\": \"").append(json(input.toAbsolutePath().toString())).append("\",\n");
         json.append("  \"summary\": { \"peopleCode\": ").append(peopleCodeCount)
-                .append(", \"sqlOrXslt\": ").append(sqlCount).append(", \"webOrText\": ").append(contentCount).append(" },\n");
+                .append(", \"sqlOrXslt\": ").append(sqlCount).append(", \"webOrText\": ").append(contentCount)
+                .append(", \"exactDuplicatesSkipped\": ").append(exactDuplicateCount)
+                .append(", \"pathCollisionsPreserved\": ").append(pathCollisionCount).append(" },\n");
         json.append("  \"instanceClasses\": {");
         boolean first = true;
         for (Map.Entry<String, Integer> entry : instanceCounts.entrySet()) {
@@ -342,4 +475,7 @@ public final class ProjectExtractor {
 
     private static String defaultValue(String value, String fallback) { return value == null || value.isBlank() ? fallback : value; }
     private static String json(String value) { return value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\r", "\\r").replace("\n", "\\n"); }
+
+    private record SqlVariant(String content, String market, String dbType, String effectiveDate) {}
+    private record AeSqlKey(String program, String section, String step, String action) {}
 }

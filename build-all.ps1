@@ -9,6 +9,8 @@ New-Item -ItemType Directory -Path $artifacts | Out-Null
 
 & (Join-Path $root 'apps\xml-extractor\build.ps1')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+& (Join-Path $root 'apps\xml-extractor\test.ps1')
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 $msbuildCandidates = @(
     'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe',

@@ -1,0 +1,60 @@
+<?xml version='1.0'?>
+<instance class="PCM">
+  <rowset><row>
+    <eObjectID_0>66</eObjectID_0><eObjectID_1>77</eObjectID_1><eObjectID_2>78</eObjectID_2><eObjectID_3>12</eObjectID_3>
+    <szObjectValue_0>TEST_AE</szObjectValue_0><szObjectValue_1>MAIN</szObjectValue_1>
+    <szObjectValue_2>GBL</szObjectValue_2><szObjectValue_3>default</szObjectValue_3>
+    <szObjectValue_4>1900-01-01</szObjectValue_4><szObjectValue_5>Step01</szObjectValue_5>
+    <szObjectValue_6>OnExecute</szObjectValue_6><peoplecode_text>/* main section */</peoplecode_text>
+  </row></rowset>
+</instance>
+<instance class="PCM">
+  <rowset><row>
+    <eObjectID_0>66</eObjectID_0><eObjectID_1>77</eObjectID_1><eObjectID_2>78</eObjectID_2><eObjectID_3>12</eObjectID_3>
+    <szObjectValue_0>TEST_AE</szObjectValue_0><szObjectValue_1>AUDIT</szObjectValue_1>
+    <szObjectValue_2>GBL</szObjectValue_2><szObjectValue_3>default</szObjectValue_3>
+    <szObjectValue_4>1900-01-01</szObjectValue_4><szObjectValue_5>Step01</szObjectValue_5>
+    <szObjectValue_6>OnExecute</szObjectValue_6><peoplecode_text>/* audit section */</peoplecode_text>
+  </row></rowset>
+</instance>
+<instance class="PCM">
+  <rowset><row>
+    <eObjectID_0>66</eObjectID_0><eObjectID_1>77</eObjectID_1><eObjectID_2>78</eObjectID_2><eObjectID_3>12</eObjectID_3>
+    <szObjectValue_0>TEST_AE</szObjectValue_0><szObjectValue_1>MAIN</szObjectValue_1>
+    <szObjectValue_2>USA</szObjectValue_2><szObjectValue_3>default</szObjectValue_3>
+    <szObjectValue_4>1900-01-01</szObjectValue_4><szObjectValue_5>Step01</szObjectValue_5>
+    <szObjectValue_6>OnExecute</szObjectValue_6><peoplecode_text>/* USA market */</peoplecode_text>
+  </row></rowset>
+</instance>
+<instance class="SRM">
+  <rowset name="SrmDefn"><row>
+    <szSqlId>MULTI_SQL</szSqlId><szSqlType>2</szSqlType>
+    <rowset name="SrmStmt">
+      <row><szMarket>GBL</szMarket><cDbType> </cDbType><szEffDt>1900-01-01</szEffDt>
+        <lpszSqlText><rowset name="char"><row><lpszSqlText>SELECT 'generic'</lpszSqlText></row></rowset></lpszSqlText>
+      </row>
+      <row><szMarket>USA</szMarket><cDbType>2</cDbType><szEffDt>2024-01-01</szEffDt>
+        <lpszSqlText><rowset name="char"><row><lpszSqlText>SELECT 'qualified'</lpszSqlText></row></rowset></lpszSqlText>
+      </row>
+      <row><szMarket>GBL</szMarket><cDbType> </cDbType><szEffDt>1900-01-01</szEffDt>
+        <lpszSqlText><rowset name="char"><row><lpszSqlText>SELECT 'unexpected collision'</lpszSqlText></row></rowset></lpszSqlText>
+      </row>
+      <row><szMarket>GBL</szMarket><cDbType> </cDbType><szEffDt>1900-01-01</szEffDt>
+        <lpszSqlText><rowset name="char"><row><lpszSqlText>SELECT 'generic'</lpszSqlText></row></rowset></lpszSqlText>
+      </row>
+    </rowset>
+  </row></rowset>
+</instance>
+<instance class="SRM">
+  <rowset name="SrmDefn"><row>
+    <szSqlId>TEST_AE     MAIN    Step01  S</szSqlId><szSqlType>1</szSqlType>
+    <rowset name="SrmStmt">
+      <row><szMarket>GBL</szMarket><cDbType> </cDbType><szEffDt>1900-01-01</szEffDt>
+        <lpszSqlText><rowset name="char"><row><lpszSqlText>SELECT 'AE generic'</lpszSqlText></row></rowset></lpszSqlText>
+      </row>
+      <row><szMarket>GBL</szMarket><cDbType>1</cDbType><szEffDt>1900-01-01</szEffDt>
+        <lpszSqlText><rowset name="char"><row><lpszSqlText>SELECT 'AE DB2'</lpszSqlText></row></rowset></lpszSqlText>
+      </row>
+    </rowset>
+  </row></rowset>
+</instance>
