@@ -39,4 +39,9 @@ Copy-Item -Path (Join-Path $root 'apps\webux-dat-extractor\src\WebUxDatExtractor
 Copy-Item -LiteralPath (Join-Path $root 'apps\webux-dat-extractor\run.cmd') -Destination $datArtifact
 Copy-Item -LiteralPath (Join-Path $root 'apps\webux-dat-extractor\README.md') -Destination $datArtifact
 
+& (Join-Path $xmlArtifact 'run-gui.bat') --check-runtime
+if ($LASTEXITCODE -ne 0) { throw 'The packaged XML extractor runtime check failed.' }
+& (Join-Path $datArtifact 'run.cmd') --check-runtime
+if ($LASTEXITCODE -ne 0) { throw 'The packaged DAT extractor runtime check failed.' }
+
 Write-Host "Build artifacts are in $artifacts"

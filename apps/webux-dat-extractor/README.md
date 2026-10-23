@@ -14,7 +14,11 @@ Exact duplicates caused by repeated Data Mover export blocks are written once. D
 
 ## Run it
 
-Double-click `run.cmd`. The app uses standard Windows file and folder dialogs and remembers the last paths. When the input changes, an automatically suggested output path changes with it; a folder chosen manually is left alone.
+Double-click `run.cmd`. The launcher verifies that the complete application
+package and .NET Framework 4.x are available before starting. The app uses
+standard Windows file and folder dialogs and remembers the last paths. When the
+input changes, an automatically suggested output path changes with it; a folder
+chosen manually is left alone.
 
 Command-line use is also supported:
 

@@ -39,7 +39,13 @@ The suggested output folder follows the selected XML until you choose or type a 
 
 ## Run
 
-Double-click `run-gui.bat`, or run:
+Double-click `run-gui.bat`. The launcher looks for Java 17 or later in an
+application-local `runtime` folder, `JAVA_HOME`, and then `PATH`. If it only
+finds an older Java installation, it reports the detected version and explains
+how to install or select a compatible runtime. Older Java versions can remain
+installed for other applications.
+
+Alternatively, run:
 
 ```text
 java -jar peoplesoft-xml-extractor.jar
